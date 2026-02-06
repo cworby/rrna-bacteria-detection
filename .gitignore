@@ -4,10 +4,7 @@ _LAST/
 
 # Ignore Large Bioinformatics Data (BAM, FASTQ, DBs)
 resources/
-*.bam
-*.fastq.gz
-*.fq.gz
-*.bt2
+*.json
 
 # OS Junk & R Metadata
 .DS_Store

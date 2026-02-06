@@ -1,0 +1,7 @@
+version: 1.2
+workflows:
+  - name: rrna_bacteria_detection
+    subclass: WDL
+    primaryDescriptorPath: /workflows/main.wdl
+    authors:
+      - name: Colin Worby
