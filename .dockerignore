@@ -1,0 +1,26 @@
+# 1. Ignore WDL Execution Data (The heavy stuff)
+# This blocks all miniwdl output folders (e.g., 20260206_...)
+202*_*
+_LAST/
+
+# 2. Ignore Large Bioinformatics Databases/Data
+resources/*.tar.gz
+resources/*.fasta
+data/
+*.bam
+*.fastq.gz
+*.fq.gz
+
+# 3. Ignore R / Programming Metadata
+.Rhistory
+.RData
+.Rproj.user/
+.git/
+.gitignore
+
+# 4. Ignore Docker Metadata
+Dockerfile
+.dockerignore
+
+# 5. OS Junk
+.DS_Store

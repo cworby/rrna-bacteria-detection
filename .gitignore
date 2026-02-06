@@ -1,0 +1,16 @@
+# Ignore WDL Execution Logs
+202*_*
+_LAST/
+
+# Ignore Large Bioinformatics Data (BAM, FASTQ, DBs)
+resources/
+*.bam
+*.fastq.gz
+*.fq.gz
+*.bt2
+
+# OS Junk & R Metadata
+.DS_Store
+.Rhistory
+.RData
+.Rproj.user/

@@ -1,0 +1,9 @@
+{
+  "rrna_bacteria_detection.bamfile": "/Users/cworby/Documents/terra_pipe_data/RVS24_0429.bam",
+  "rrna_bacteria_detection.rrna_db_lsu": "/Users/cworby/Documents/terra_bacterial_detection/resources/silva-bac-23s-id98.fasta",  
+  "rrna_bacteria_detection.rrna_db_ssu": "/Users/cworby/Documents/terra_bacterial_detection/resources/silva-bac-16s-id90.fasta", 
+  "rrna_bacteria_detection.blast_db": "/Users/cworby/Documents/terra_bacterial_detection/resources/silva_blast_db.tar.gz",
+  "rrna_bacteria_detection.blast_db_name": "blast_db",
+  "taxmap_lsu": "/Users/cworby/Documents/terra_bacterial_detection/resources/taxmap_slv_lsu_ref_nr_138.1.txt",
+  "taxmap_ssu": "/Users/cworby/Documents/terra_bacterial_detection/resources/taxmap_slv_ssu_ref_nr_138.1.txt"
+}
