@@ -1,19 +1,22 @@
+version 1.0
+
 task metaspades {
   input {
     File reads1
     File reads2
-    Int threads = 16
-    Int memory_gb
+    Int cpu
+    Int mem
+    Int preemptible
   }
 
   command <<<
     spades.py \
       --meta \
-      -1 ${reads1} \
-      -2 ${reads2} \
+      -1 ~{reads1} \
+      -2 ~{reads2} \
       -o metaspades_out \
-      -t ${threads} \
-      -m ${memory_gb}
+      -t ~{cpu} \
+      -m ~{mem}
   >>>
 
   output {
@@ -22,9 +25,10 @@ task metaspades {
 
   runtime {
     docker: "staphb/spades:3.15.5"
-    cpu: threads
-    memory: "${memory_gb}G"
-    preemptible: 0
+    cpu: cpu
+    memory: "~{mem} GB"
+    disks: "local-disk 100 HDD"
+    preemptible: preemptible
   }
 }
 
@@ -32,18 +36,19 @@ task rnaspades {
   input {
     File reads1
     File reads2
-    Int threads = 16
-    Int memory_gb
+    Int cpu
+    Int mem
+    Int preemptible
   }
 
   command <<<
     spades.py \
       --rna \
-      -1 ${reads1} \
-      -2 ${reads2} \
+      -1 ~{reads1} \
+      -2 ~{reads2} \
       -o rnaspades_out \
-      -t ${threads} \
-      -m ${memory_gb}
+      -t ~{cpu} \
+      -m ~{mem}
   >>>
 
   output {
@@ -52,8 +57,9 @@ task rnaspades {
 
   runtime {
     docker: "staphb/spades:3.15.5"
-    cpu: threads
-    memory: "${memory_gb}G"
-    preemptible: 0
+    cpu: cpu
+    memory: "~{mem} GB"
+    disks: "local-disk 100 HDD"
+    preemptible: preemptible
   }
 }

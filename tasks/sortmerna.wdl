@@ -1,35 +1,39 @@
+version 1.0
+
 task extract_rrna {
   input {
     File fastq1
     File fastq2
-    File rrna_db_lsu
-    File rrna_db_ssu
-    Int threads = 8
+    Array[File] rrna_db
+    Int cpu
+    Int mem
+    Int preemptible
   }
 
   command <<<
     sortmerna \
-      --ref ${rrna_db_lsu} \
-      --ref ${rrna_db_ssu} \
-      --reads ${fastq1} \
-      --reads ${fastq2} \
+      ~{sep=" " prefix("--ref ", rrna_db)} \
+      --reads ~{fastq1} \
+      --reads ~{fastq2} \
       --paired_in \
       --workdir . \
       --fastx \
       --out2 \
       --aligned rrna \
-      --threads ${threads}
+      --threads ~{cpu}
   >>>
 
   output {
     File rrna_1 = "rrna_fwd.fq.gz"
     File rrna_2 = "rrna_rev.fq.gz"
+    File extract_rrna_summary = "rrna.log"
   }
 
   runtime {
     docker: "nanozoo/sortmerna:4.3.4--7b48a67"
-    cpu: threads
-    memory: "32G"
-    preemptible: 3
+    cpu: cpu
+    memory: "~{mem} GB"
+    disks: "local-disk 100 HDD"
+    preemptible: preemptible
   }
 }

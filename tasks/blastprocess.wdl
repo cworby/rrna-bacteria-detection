@@ -1,3 +1,4 @@
+version 1.0
 
 task contig_tax {
 
@@ -5,13 +6,16 @@ task contig_tax {
     File blast_results
     File taxmap_lsu
     File taxmap_ssu
+    Int cpu
+    Int mem
+    Int preemptible
   }
 
   command <<<
     blast_taxonomy.r \
-      --blast ${blast_results} \
-      --ssu ${taxmap_ssu} \
-      --lsu ${taxmap_lsu} \
+      --blast ~{blast_results} \
+      --ssu ~{taxmap_ssu} \
+      --lsu ~{taxmap_lsu} \
       --out contig_taxonomy.tsv
   >>>
 
@@ -20,8 +24,10 @@ task contig_tax {
   }
 
   runtime {
-    docker: "gcr.io/gcid-bacterial/gcid-bacterial/parse_taxonomy:v1.0.1"
-    cpu: 1
-    memory: "4G"
+    docker: "us-central1-docker.pkg.dev/gcid-bacterial/gcid-bacterial/parse_taxonomy:v1.0.1"
+    cpu: cpu
+    memory: "~{mem} GB"
+    disks: "local-disk 100 HDD"
+    preemptible: preemptible
   }
 }

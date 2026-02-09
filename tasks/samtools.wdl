@@ -1,10 +1,15 @@
+version 1.0
+
 task bam_to_fastq {
   input {
     File bamfile
+    Int cpu
+    Int mem
+    Int preemptible
   }
 
   command <<<
-    samtools fastq ${bamfile} \
+    samtools fastq ~{bamfile} \
         -1 reads_R1.fastq.gz \
         -2 reads_R2.fastq.gz
   >>>
@@ -16,7 +21,9 @@ task bam_to_fastq {
 
   runtime {
     docker: "staphb/samtools:1.21"
-    memory: "8G"
-    preemptible: 3
+    memory: "~{mem} GB"
+    disks: "local-disk 100 HDD"
+    cpu: cpu
+    preemptible: preemptible
   }
 }
