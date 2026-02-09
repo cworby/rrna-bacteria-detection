@@ -1,6 +1,6 @@
 # Ignore WDL Execution Logs
 202*_*
-_LAST/
+_LAST
 
 # Ignore Large Bioinformatics Data (BAM, FASTQ, DBs)
 resources/
