@@ -18,11 +18,11 @@ workflow rrna_bacteria_detection {
     Int blast_mem = 16
 
     File bamfile
-    Array[File] rrna_db
-    File blast_db
-    String blast_db_name
-    File taxmap_lsu
-    File taxmap_ssu
+    Array[File] rrna_db = ["gs://gcid-bacterial-public/rrna_databases/smr_v4.3_default_db_bacteria.fasta"]
+    File blast_db = "gs://gcid-bacterial-public/rrna_databases/silva_blast_db.tar.gz"
+    String blast_db_name = "blast_db"
+    File taxmap_lsu = "gs://gcid-bacterial-public/rrna_databases/taxmap_slv_lsu_ref_nr_138.1.txt"
+    File taxmap_ssu = "gs://gcid-bacterial-public/rrna_databases/taxmap_slv_ssu_ref_nr_138.1.txt"
   }
 
   call samtools.bam_to_fastq {
