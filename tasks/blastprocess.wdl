@@ -24,7 +24,7 @@ task contig_tax {
   }
 
   runtime {
-    docker: "us-central1-docker.pkg.dev/gcid-bacterial/gcid-bacterial/parse_taxonomy:v1.0.1"
+    docker: "cworby/parse_taxonomy:v1.0.1"
     cpu: cpu
     memory: "~{mem} GB"
     disks: "local-disk 100 HDD"

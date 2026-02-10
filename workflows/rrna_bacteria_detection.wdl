@@ -82,9 +82,9 @@ workflow rrna_bacteria_detection {
   }
   
   output {
-    File rrna_summary = extract_rrna.extract_rrna_summary
-    File contigs = metaspades.contigs
-    File blast_results = contigs_silva.blast_results
-    File blast_summary = contig_tax.summary
+    File rrna_filtering_summary = extract_rrna.extract_rrna_summary
+    File rrna_contigs = metaspades.contigs
+    File rrna_blast_results = contigs_silva.blast_results
+    File rrna_tax_summary = contig_tax.summary
   }
 }
