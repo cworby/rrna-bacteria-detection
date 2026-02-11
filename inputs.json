@@ -1,5 +1,5 @@
 {
-  "rrna_bacteria_detection.bamfile": "/Users/cworby/Documents/terra_pipe_data/RVS24_0429.bam",
+  "rrna_bacteria_detection.bamfile": "/Users/cworby/Documents/terra_pipe_data/RVS24_0374.bam",
   "rrna_bacteria_detection.rrna_db": [
     "/Users/cworby/Documents/terra_bacterial_detection/resources/smr_v4.3_default_db_bacteria.fasta"], 
   "rrna_bacteria_detection.blast_db": "/Users/cworby/Documents/terra_bacterial_detection/resources/silva_blast_db.tar.gz",

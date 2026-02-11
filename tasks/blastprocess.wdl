@@ -24,7 +24,7 @@ task contig_tax {
   }
 
   runtime {
-    docker: "cworby/parse_taxonomy:v1.0.2"
+    docker: "cworby/parse_taxonomy:v1.0.3"
     cpu: cpu
     memory: "~{mem} GB"
     disks: "local-disk 100 HDD"

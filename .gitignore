@@ -2,7 +2,7 @@
 202*_*
 _LAST
 
-# Ignore Large Bioinformatics Data (BAM, FASTQ, DBs)
+# Ignore FASTQ, DBs
 resources/
 *.json
 
@@ -11,3 +11,4 @@ resources/
 .Rhistory
 .RData
 .Rproj.user/
+*.cfg
