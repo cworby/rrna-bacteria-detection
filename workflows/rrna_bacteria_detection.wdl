@@ -8,6 +8,9 @@ import "../tasks/blast.wdl" as blast
 import "../tasks/blastprocess.wdl" as blastproc
 
 workflow rrna_bacteria_detection {
+  meta {
+    description: "Workflow for identifying bacterial taxa from total RNAseq data"
+  }
   input {
     Int base_cpu = 4
     Int base_mem = 8
