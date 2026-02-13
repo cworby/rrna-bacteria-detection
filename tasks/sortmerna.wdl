@@ -7,6 +7,7 @@ task extract_rrna {
     Array[File] rrna_db
     Int cpu
     Int mem
+    Int disk
     Int preemptible
   }
 
@@ -33,7 +34,7 @@ task extract_rrna {
     docker: "nanozoo/sortmerna:4.3.4--7b48a67"
     cpu: cpu
     memory: "~{mem} GB"
-    disks: "local-disk 100 HDD"
+    disks: "local-disk ~{disk} HDD"
     preemptible: preemptible
   }
 }

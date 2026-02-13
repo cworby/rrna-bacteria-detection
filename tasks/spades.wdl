@@ -6,6 +6,7 @@ task metaspades {
     File reads2
     Int cpu
     Int mem
+    Int disk
     Int preemptible
   }
 
@@ -27,7 +28,7 @@ task metaspades {
     docker: "staphb/spades:3.15.5"
     cpu: cpu
     memory: "~{mem} GB"
-    disks: "local-disk 100 HDD"
+    disks: "local-disk ~{disk} HDD"
     preemptible: preemptible
   }
 }
@@ -38,6 +39,7 @@ task rnaspades {
     File reads2
     Int cpu
     Int mem
+    Int disk
     Int preemptible
   }
 
@@ -59,7 +61,7 @@ task rnaspades {
     docker: "staphb/spades:3.15.5"
     cpu: cpu
     memory: "~{mem} GB"
-    disks: "local-disk 100 HDD"
+    disks: "local-disk ~{disk} HDD"
     preemptible: preemptible
   }
 }
