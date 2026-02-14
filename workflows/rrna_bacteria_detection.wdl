@@ -15,7 +15,6 @@ workflow rrna_bacteria_detection {
     Int base_cpu = 4
     Int base_mem = 8
     Int base_preempt = 3
-    Int sortmerna_mem = 32
     Int blast_mem = 16
 
     File bamfile
@@ -44,8 +43,9 @@ workflow rrna_bacteria_detection {
   }
 
   Int total_reads_mb = ceil(size(qc.fq1, "MB") + size(qc.fq2, "MB"))
-  Int sortmerna_cpu = if total_reads_mb > 5000 then 16 else if total_reads_mb > 1000 then 8 else 4
-  Int sortmerna_disk = if total_reads_mb > 5000 then 500 else if total_reads_mb > 1000 then 300 else 100
+  Int sortmerna_cpu = if total_reads_mb > 3000 then 16 else if total_reads_mb > 1000 then 8 else 4
+  Int sortmerna_mem = if total_reads_mb > 3000 then 64 else if total_reads_mb > 1000 then 48 else 32
+  Int sortmerna_disk = if total_reads_mb > 3000 then 500 else if total_reads_mb > 1000 then 300 else 100
 
   call sortmerna.extract_rrna {
     input:
@@ -59,9 +59,9 @@ workflow rrna_bacteria_detection {
   }
 
   Int rrna_reads_mb = ceil(size(extract_rrna.rrna_1, "MB") + size(extract_rrna.rrna_2, "MB"))
-  Int spades_cpu = if rrna_reads_mb > 500 then 16 else if rrna_reads_mb > 100 then 8 else 4
-  Int spades_mem = if rrna_reads_mb > 500 then 128 else if rrna_reads_mb > 100 then 72 else 16
-  Int spades_disk = if rrna_reads_mb > 500 then 500 else if rrna_reads_mb > 100 then 300 else 100
+  Int spades_cpu = if rrna_reads_mb > 1000 then 32 else if rrna_reads_mb > 500 then 16 else if rrna_reads_mb > 100 then 8 else 4
+  Int spades_mem = if rrna_reads_mb > 1000 then 256 else if rrna_reads_mb > 500 then 192 else if rrna_reads_mb > 100 then 128 else 32
+  Int spades_disk = if rrna_reads_mb > 1000 then 750 else if rrna_reads_mb > 500 then 500 else if rrna_reads_mb > 100 then 300 else 100
 
   call spades.metaspades {
     input:
