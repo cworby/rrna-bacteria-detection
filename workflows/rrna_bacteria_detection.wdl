@@ -4,6 +4,7 @@ import "../tasks/samtools.wdl" as samtools
 import "../tasks/fastp.wdl" as fastp
 import "../tasks/sortmerna.wdl" as sortmerna
 import "../tasks/spades.wdl" as spades
+import "../tasks/vsearch.wdl" as vsearch
 import "../tasks/blast.wdl" as blast
 import "../tasks/blastprocess.wdl" as blastproc
 
@@ -16,6 +17,8 @@ workflow rrna_bacteria_detection {
     Int base_mem = 8
     Int base_preempt = 3
     Int blast_mem = 16
+    Int vsearch_mem = 16
+    Boolean run_chimera_filter = true
 
     File bamfile
     Array[File] rrna_db = ["gs://gcid-bacterial-public/rrna_databases/smr_v4.3_default_db_bacteria.fasta"]
@@ -23,6 +26,7 @@ workflow rrna_bacteria_detection {
     String blast_db_name = "blast_db"
     File taxmap_lsu = "gs://gcid-bacterial-public/rrna_databases/taxmap_slv_lsu_ref_nr_138.1.txt"
     File taxmap_ssu = "gs://gcid-bacterial-public/rrna_databases/taxmap_slv_ssu_ref_nr_138.1.txt"
+    File chimera_ref_db = "gs://gcid-bacterial-public/rrna_databases/SILVA_138.1_SSU_LSURef_NR99_tax_silva_trunc.fasta"
   }
 
   call samtools.bam_to_fastq {
@@ -76,31 +80,68 @@ workflow rrna_bacteria_detection {
   Boolean successful_assembly = size(metaspades.contigs) > 0
 
   if (successful_assembly) {
-    call blast.contigs_silva {
-      input:
-        contigs = metaspades.contigs,
-        blast_db = blast_db,
-        blast_db_name = blast_db_name,
-        cpu = base_cpu,
-        mem = blast_mem,
-        preemptible = base_preempt
+    if (run_chimera_filter) {
+      call vsearch.chimera_filter {
+        input:
+          contigs        = metaspades.contigs,
+          chimera_ref_db = chimera_ref_db,
+          cpu            = base_cpu,
+          mem            = vsearch_mem,
+          preemptible    = base_preempt
+      }
+
+      call blast.contigs_silva as contigs_silva_filtered {
+        input:
+          contigs       = chimera_filter.contigs_filtered,
+          blast_db      = blast_db,
+          blast_db_name = blast_db_name,
+          cpu           = base_cpu,
+          mem           = blast_mem,
+          preemptible   = base_preempt
+      }
+
+      call blastproc.contig_tax as contig_tax_filtered {
+        input:
+          taxmap_lsu    = taxmap_lsu,
+          taxmap_ssu    = taxmap_ssu,
+          blast_results = contigs_silva_filtered.blast_results,
+          cpu           = base_cpu,
+          mem           = base_mem,
+          preemptible   = base_preempt
+      }
     }
 
-    call blastproc.contig_tax {
-      input:
-        taxmap_lsu = taxmap_lsu,
-        taxmap_ssu = taxmap_ssu,
-        blast_results = contigs_silva.blast_results,
-        cpu = base_cpu,
-        mem = base_mem,
-        preemptible = base_preempt
+    if (!run_chimera_filter) {
+      call blast.contigs_silva {
+        input:
+          contigs       = metaspades.contigs,
+          blast_db      = blast_db,
+          blast_db_name = blast_db_name,
+          cpu           = base_cpu,
+          mem           = blast_mem,
+          preemptible   = base_preempt
+      }
+
+      call blastproc.contig_tax {
+        input:
+          taxmap_lsu    = taxmap_lsu,
+          taxmap_ssu    = taxmap_ssu,
+          blast_results = contigs_silva.blast_results,
+          cpu           = base_cpu,
+          mem           = base_mem,
+          preemptible   = base_preempt
+      }
     }
   }
-  
+
   output {
-    File rrna_filtering_summary = extract_rrna.extract_rrna_summary
-    File rrna_contigs = metaspades.contigs
-    File? rrna_blast_results = contigs_silva.blast_results
-    File? rrna_tax_summary = contig_tax.summary
+    File  rrna_filtering_summary      = extract_rrna.extract_rrna_summary
+    File  rrna_contigs                = metaspades.contigs
+    File? rrna_contigs_filtered       = chimera_filter.contigs_filtered
+    File? rrna_chimera_stats          = chimera_filter.chimera_stats
+    File? rrna_blast_results_filtered = contigs_silva_filtered.blast_results
+    File? rrna_tax_summary_filtered   = contig_tax_filtered.summary
+    File? rrna_blast_results          = contigs_silva.blast_results
+    File? rrna_tax_summary            = contig_tax.summary
   }
 }
