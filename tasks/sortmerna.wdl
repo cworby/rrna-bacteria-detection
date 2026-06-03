@@ -31,7 +31,7 @@ task extract_rrna {
   }
 
   runtime {
-    docker: "nanozoo/sortmerna:4.3.4--7b48a67"
+    docker: "quay.io/biocontainers/sortmerna:4.3.7--hdbdd923_1"
     cpu: cpu
     memory: "~{mem} GB"
     disks: "local-disk ~{disk} HDD"
