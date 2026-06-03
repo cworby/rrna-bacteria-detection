@@ -65,9 +65,9 @@ workflow rrna_bacteria_detection {
     }
 
     Int rrna_reads_mb = ceil(size(extract_rrna.rrna_1, "MB") + size(extract_rrna.rrna_2, "MB"))
-    Int spades_cpu = if rrna_reads_mb > 1000 then 32 else if rrna_reads_mb > 500 then 16 else if rrna_reads_mb > 100 then 8 else 4
-    Int spades_mem = if rrna_reads_mb > 1000 then 256 else if rrna_reads_mb > 500 then 192 else if rrna_reads_mb > 100 then 128 else 32
-    Int spades_disk = if rrna_reads_mb > 1000 then 750 else if rrna_reads_mb > 500 then 500 else if rrna_reads_mb > 100 then 300 else 100
+    Int spades_cpu = if rrna_reads_mb > 1000 then 32 else if rrna_reads_mb > 250 then 16 else if rrna_reads_mb > 100 then 8 else 4
+    Int spades_mem = if rrna_reads_mb > 1000 then 256 else if rrna_reads_mb > 250 then 192 else if rrna_reads_mb > 100 then 128 else 32
+    Int spades_disk = if rrna_reads_mb > 1000 then 750 else if rrna_reads_mb > 250 then 500 else if rrna_reads_mb > 100 then 300 else 100
 
     call spades.metaspades {
       input:
