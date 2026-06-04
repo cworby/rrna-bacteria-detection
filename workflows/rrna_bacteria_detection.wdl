@@ -1,6 +1,7 @@
 version 1.0
 
 import "../tasks/samtools.wdl" as samtools
+import "../tasks/seqtk.wdl" as seqtk
 import "../tasks/fastp.wdl" as fastp
 import "../tasks/sortmerna.wdl" as sortmerna
 import "../tasks/spades.wdl" as spades
@@ -19,6 +20,8 @@ workflow rrna_bacteria_detection {
     Int blast_mem = 16
     Int vsearch_mem = 16
     Boolean run_chimera_filter = true
+    Int max_rrna_reads_mb = 500
+    Int downsample_rrna_target = 5000000
 
     File? bamfile
     Array[File] rrna_db = ["gs://gcid-bacterial-public/rrna_databases/smr_v4.3_default_db_bacteria.fasta"]
@@ -36,6 +39,7 @@ workflow rrna_bacteria_detection {
         bamfile = select_first([bamfile]),
         cpu = base_cpu,
         mem = base_mem,
+        disk = 200,
         preemptible = base_preempt
     }
 
@@ -65,14 +69,32 @@ workflow rrna_bacteria_detection {
     }
 
     Int rrna_reads_mb = ceil(size(extract_rrna.rrna_1, "MB") + size(extract_rrna.rrna_2, "MB"))
-    Int spades_cpu = if rrna_reads_mb > 1000 then 32 else if rrna_reads_mb > 250 then 16 else if rrna_reads_mb > 100 then 8 else 4
-    Int spades_mem = if rrna_reads_mb > 1000 then 256 else if rrna_reads_mb > 250 then 192 else if rrna_reads_mb > 100 then 128 else 32
-    Int spades_disk = if rrna_reads_mb > 1000 then 750 else if rrna_reads_mb > 250 then 500 else if rrna_reads_mb > 100 then 300 else 100
+
+    if (rrna_reads_mb > max_rrna_reads_mb) {
+      call seqtk.downsample_fastq as downsample_rrna {
+        input:
+          fastq1       = extract_rrna.rrna_1,
+          fastq2       = extract_rrna.rrna_2,
+          target_reads = downsample_rrna_target,
+          cpu          = base_cpu,
+          mem          = base_mem,
+          disk         = rrna_reads_mb,
+          preemptible  = base_preempt
+      }
+    }
+
+    File rrna_1 = select_first([downsample_rrna.fq1, extract_rrna.rrna_1])
+    File rrna_2 = select_first([downsample_rrna.fq2, extract_rrna.rrna_2])
+
+    Int spades_input_mb = ceil(size(rrna_1, "MB") + size(rrna_2, "MB"))
+    Int spades_cpu  = if spades_input_mb > 750 then 32 else if spades_input_mb > 250 then 16 else if spades_input_mb > 100 then 8 else 4
+    Int spades_mem  = if spades_input_mb > 750 then 256 else if spades_input_mb > 250 then 192 else if spades_input_mb > 100 then 128 else 32
+    Int spades_disk = if spades_input_mb > 750 then 750 else if spades_input_mb > 250 then 500 else if spades_input_mb > 100 then 300 else 100
 
     call spades.metaspades {
       input:
-        reads1 = extract_rrna.rrna_1,
-        reads2 = extract_rrna.rrna_2,
+        reads1 = rrna_1,
+        reads2 = rrna_2,
         cpu = spades_cpu,
         mem = spades_mem,
         disk = spades_disk,
@@ -140,6 +162,7 @@ workflow rrna_bacteria_detection {
 
   output {
     File? rrna_filtering_summary      = extract_rrna.extract_rrna_summary
+    Int?  downsampled_rrna_reads      = downsample_rrna.reads_used
     File  rrna_contigs                = contigs
     File? rrna_contigs_filtered       = chimera_filter.contigs_filtered
     File? rrna_chimera_stats          = chimera_filter.chimera_stats

@@ -157,16 +157,23 @@ tax_map_lsu$acc_full <- paste(tax_map_lsu$primaryAccession, tax_map_lsu$start, t
 # Name mapping tables
 tax_map <- list(`SSU`=tax_map_ssu, `LSU`=tax_map_lsu)
 
-blasttable <- read.table(blast_out, sep="\t", header=FALSE)
-blast_tax_table <- taxonomy_from_blast(blasttable, tax_map, qnamecol="acc_full", 
-                                       eval_col=12, idcol=3, matchlencol=4, subs=list(c("Mycoplasmoides", "Mycoplasma")))
+if (file.info(blast_out)$size == 0) {
+  blast_tax_table <- data.frame(contig=character(), length=character(), best_hit=character(),
+                                maxID=numeric(), max_matchlen=numeric(), rrna=character(),
+                                path=character(), sp_hits=character(), blast_bacteria=logical(),
+                                blast_best_lvl=character())
+  write.table(blast_tax_table, file=summary_table, sep="\t", quote=FALSE, row.names=FALSE)
+} else {
+  blasttable <- read.table(blast_out, sep="\t", header=FALSE)
+  blast_tax_table <- taxonomy_from_blast(blasttable, tax_map, qnamecol="acc_full",
+                                        eval_col=12, idcol=3, matchlencol=4, subs=list(c("Mycoplasmoides", "Mycoplasma")))
 
-blast_tax_table$path <- gsub(";uncultured","",blast_tax_table$path)
-blast_tax_table$blast_bacteria <- breakup(blast_tax_table$path, ";", 1)=="Bacteria"
-lvl <- sapply(strsplit(blast_tax_table$path, ";"),length)
-blast_tax_table$blast_best_lvl <- c("K", "P", "C", "O", "F", "G")[lvl]
-blast_tax_table$blast_best_lvl[which(lvl==6 & grepl(" ", blast_tax_table$best_hit))] <- "S"
+  blast_tax_table$path <- gsub(";uncultured","",blast_tax_table$path)
+  blast_tax_table$blast_bacteria <- breakup(blast_tax_table$path, ";", 1)=="Bacteria"
+  lvl <- sapply(strsplit(blast_tax_table$path, ";"),length)
+  blast_tax_table$blast_best_lvl <- c("K", "P", "C", "O", "F", "G")[lvl]
+  blast_tax_table$blast_best_lvl[which(lvl==6 & grepl(" ", blast_tax_table$best_hit))] <- "S"
 
-write.table(blast_tax_table, file=summary_table, sep="\t", quote=FALSE, row.names=FALSE)
-
+  write.table(blast_tax_table, file=summary_table, sep="\t", quote=FALSE, row.names=FALSE)
+}
 
